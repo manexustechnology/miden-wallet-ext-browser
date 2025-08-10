@@ -10,6 +10,7 @@ function ensureClientSide(): void {
 }
 
 // Lazy load Miden SDK to avoid server-side issues
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let midenSDKCache: any = null;
 
 async function getMidenSDK() {
@@ -78,7 +79,7 @@ export function getWalletInitials(address: string): string {
 }
 
 // Parse Miden error and convert to user-friendly format
-export function parseMidenError(error: any): MidenError {
+export function parseMidenError(error: unknown): MidenError {
   const errorMessage = error instanceof Error ? error.message : String(error);
   
   // Check for P2IDE reclaim disabled error
@@ -212,14 +213,14 @@ export async function createMintConsume(progressCallback?: ProgressCallback): Pr
 
     // Mint tokens
     progressCallback?.('minting-tokens', 70, 'Minting initial tokens to Alice...');
-    let mintTxRequest = client.newMintTransactionRequest(
+    const mintTxRequest = client.newMintTransactionRequest(
       AccountId.fromHex(aliceId),
       AccountId.fromHex(faucetId),
       NoteType.Public,
       BigInt(500),
     );
 
-    let txResult = await client.newTransaction(AccountId.fromHex(faucetId), mintTxRequest);
+    const txResult = await client.newTransaction(AccountId.fromHex(faucetId), mintTxRequest);
     await client.submitTransaction(txResult);
 
     progressCallback?.('waiting-confirmation', 80, 'Waiting for transaction confirmation (10 seconds)...');
@@ -231,14 +232,15 @@ export async function createMintConsume(progressCallback?: ProgressCallback): Pr
     // Fetch and consume notes
     progressCallback?.('fetching-notes', 88, 'Fetching minted notes...');
     const mintedNotes = await client.getConsumableNotes(AccountId.fromHex(aliceId));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mintedNoteIds = mintedNotes.map((n: any) => n.inputNoteRecord().id().toString());
     
     progressCallback?.('notes-fetched', 90, `Found ${mintedNoteIds.length} minted notes`);
     
     if (mintedNoteIds.length > 0) {
       progressCallback?.('consuming-notes', 92, 'Consuming minted notes...');
-      let consumeTxRequest = client.newConsumeTransactionRequest(mintedNoteIds);
-      let consumeTxResult = await client.newTransaction(AccountId.fromHex(aliceId), consumeTxRequest);
+      const consumeTxRequest = client.newConsumeTransactionRequest(mintedNoteIds);
+      const consumeTxResult = await client.newTransaction(AccountId.fromHex(aliceId), consumeTxRequest);
       await client.submitTransaction(consumeTxResult);
       await client.syncState();
       progressCallback?.('notes-consumed', 95, 'Notes consumed successfully. Balance updated.');
@@ -326,14 +328,14 @@ export async function mintFromFaucet(faucetId: string, aliceId: string, amount: 
     }
     
     console.log(`Minting ${amount} tokens to Alice...`);
-    let mintTxRequest = client.newMintTransactionRequest(
+    const mintTxRequest = client.newMintTransactionRequest(
       AccountId.fromHex(aliceId),
       AccountId.fromHex(faucetId),
       NoteType.Public,
       amount,
     );
 
-    let txResult = await client.newTransaction(AccountId.fromHex(faucetId), mintTxRequest);
+    const txResult = await client.newTransaction(AccountId.fromHex(faucetId), mintTxRequest);
     await client.submitTransaction(txResult);
 
     console.log("Waiting 10 seconds for transaction confirmation...");
@@ -354,11 +356,12 @@ export async function mintFromFaucet(faucetId: string, aliceId: string, amount: 
 
     // Get minted notes and consume them
     const mintedNotes = await client.getConsumableNotes(AccountId.fromHex(aliceId));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mintedNoteIds = mintedNotes.map((n: any) => n.inputNoteRecord().id().toString());
     
     if (mintedNoteIds.length > 0) {
-      let consumeTxRequest = client.newConsumeTransactionRequest(mintedNoteIds);
-      let consumeTxResult = await client.newTransaction(AccountId.fromHex(aliceId), consumeTxRequest);
+      const consumeTxRequest = client.newConsumeTransactionRequest(mintedNoteIds);
+      const consumeTxResult = await client.newTransaction(AccountId.fromHex(aliceId), consumeTxRequest);
       await client.submitTransaction(consumeTxResult);
       
       try {
@@ -435,6 +438,7 @@ export async function getRealTimeBalance(aliceId: string): Promise<{ balance: st
     }
     
     const consumableNotes = await client.getConsumableNotes(AccountId.fromHex(aliceId));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const noteIds = consumableNotes.map((n: any) => n.inputNoteRecord().id().toString());
     
     let balance = "0";

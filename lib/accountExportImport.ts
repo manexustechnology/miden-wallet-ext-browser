@@ -12,7 +12,7 @@ function ensureClientSide(): void {
   }
 }
 
-// Lazy load Miden SDK to avoid server-side issues
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let midenSDKCache: any = null;
 
 async function getMidenSDK() {
@@ -46,6 +46,7 @@ export interface ImportResult {
  * @param parsedData - Parsed JSON data from backup file
  * @returns MidenInfo object if valid, null otherwise
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function extractWalletData(parsedData: any): MidenInfo | null {
   if (!parsedData || typeof parsedData !== 'object') {
     return null;
@@ -239,6 +240,7 @@ export async function importStore(storeDump: Uint8Array | string): Promise<Impor
     }
     
     // Validate JSON format
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let parsedData: any;
     try {
       parsedData = JSON.parse(jsonString);
@@ -456,9 +458,9 @@ export async function importWalletBackup(walletData: MidenInfo): Promise<ImportR
  * @param filename - The filename for the download
  * @param mimeType - The MIME type for the file
  */
-export function downloadFile(data: Uint8Array, filename: string, mimeType: string = 'application/octet-stream') {
+export function downloadFile(data: Uint8Array | ArrayBuffer, filename: string, mimeType: string = 'application/octet-stream') {
   try {
-    const blob = new Blob([data], { type: mimeType });
+    const blob = new Blob([data as BlobPart], { type: mimeType });
     const url = URL.createObjectURL(blob);
     
     const link = document.createElement('a');
