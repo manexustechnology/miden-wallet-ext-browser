@@ -1,13 +1,12 @@
 "use client";
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   createMintConsume, 
   getWalletFromStorage,
   saveWalletToStorage,
   getRealTimeBalance, 
   hexToMidenAddress,
-  disconnectWallet,
-  resetMidenDatabase,
+  disconnectWallet, 
   mintFromFaucet,
   MidenInfo,
   ProgressCallback
@@ -307,7 +306,7 @@ function WalletInterface({ walletData, onDisconnect, onUpdateWallet }: {
     } catch (error) {
       console.error('Failed to update balance from blockchain:', error);
       setToast({
-        message: 'Gagal update balance dari blockchain',
+        message: 'Failed to update balance from blockchain',
         type: 'error',
         isVisible: true
       });
@@ -353,7 +352,7 @@ function WalletInterface({ walletData, onDisconnect, onUpdateWallet }: {
       }
       
       setToast({
-        message: `Berhasil mint ${mintAmount} token! Balance akan diupdate dalam beberapa detik...`,
+        message: `Successfully minted ${mintAmount} tokens! Balance will be updated in a few seconds...`,
         type: 'success',
         isVisible: true
       });
@@ -371,7 +370,7 @@ function WalletInterface({ walletData, onDisconnect, onUpdateWallet }: {
       
       if (realTimeBalance !== oldBalance) {
         setToast({
-          message: `Minting berhasil! Balance updated: ${oldBalance} → ${realTimeBalance} MDN`,
+          message: `Minting successful! Balance updated: ${oldBalance} → ${realTimeBalance} MDN`,
           type: 'success',
           isVisible: true
         });
@@ -381,7 +380,7 @@ function WalletInterface({ walletData, onDisconnect, onUpdateWallet }: {
     } catch (error) {
       console.error('Minting failed:', error);
       setToast({
-        message: 'Gagal melakukan minting. Silakan coba lagi.',
+        message: 'Failed to perform minting. Please try again.',
         type: 'error',
         isVisible: true
       });
@@ -394,7 +393,7 @@ function WalletInterface({ walletData, onDisconnect, onUpdateWallet }: {
   const handleExportAccount = async () => {
     if (!walletData?.aliceId) {
       setToast({
-        message: 'Account ID tidak tersedia',
+        message: 'Account ID not available',
         type: 'error',
         isVisible: true
       });
@@ -411,13 +410,13 @@ function WalletInterface({ walletData, onDisconnect, onUpdateWallet }: {
         // For now, we'll just log or show a toast
         console.log('Account exported to file:', filename);
         setToast({
-          message: 'Account berhasil di-export!',
+          message: 'Account exported successfully!',
           type: 'success',
           isVisible: true
         });
       } else {
         setToast({
-          message: result.error || 'Gagal export account',
+          message: result.error || 'Failed to export account',
           type: 'error',
           isVisible: true
         });
@@ -425,7 +424,7 @@ function WalletInterface({ walletData, onDisconnect, onUpdateWallet }: {
     } catch (error) {
       console.error('Export error:', error);
       setToast({
-        message: 'Gagal export account',
+        message: 'Failed to export account',
         type: 'error',
         isVisible: true
       });
@@ -456,14 +455,14 @@ function WalletInterface({ walletData, onDisconnect, onUpdateWallet }: {
       console.log('Wallet backup exported to file:', filename);
       
       setToast({
-        message: 'Wallet backup berhasil di-export!',
+        message: 'Wallet backup exported successfully!',
         type: 'success',
         isVisible: true
       });
     } catch (error) {
       console.error('Export store error:', error);
       setToast({
-        message: 'Gagal export wallet',
+        message: 'Failed to export wallet',
         type: 'error',
         isVisible: true
       });
@@ -543,7 +542,7 @@ function WalletInterface({ walletData, onDisconnect, onUpdateWallet }: {
           isConnected: true
         };
         
-        if (walletData) {
+  if (walletData) {
           console.log('Valid wallet data found:', walletData);
         } else {
           console.log('No valid wallet data found, treating as store data');
@@ -711,8 +710,8 @@ function WalletInterface({ walletData, onDisconnect, onUpdateWallet }: {
                 {isBalanceLoading && (
                   <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full animate-pulse"></div>
                 )}
-              </div>
-              <button
+                  </div>
+                        <button
                 onClick={updateBalanceFromBlockchain}
                 disabled={isBalanceLoading}
                 className={`p-2 rounded-full transition-colors ${
@@ -726,27 +725,14 @@ function WalletInterface({ walletData, onDisconnect, onUpdateWallet }: {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               </button>
-              <button
-                onClick={async () => {
-                  if (confirm('Reset database? This will clear all local data but may fix ConstraintError issues.')) {
-                    await resetMidenDatabase();
-                    window.location.reload();
-                  }
-                }}
-                className="p-2 rounded-full transition-colors bg-red-600 hover:bg-red-700"
-                title="Reset database (fixes ConstraintError)"
-              >
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              </button>
-            </div>
+
+                      </div>
             <div className="text-lg text-white">MDN</div>
             <div className="text-xs text-gray-400 mt-1">
               {isBalanceLoading ? 'Updating from blockchain...' : 'Live from blockchain'}
             </div>
-                  </div>
-                  
+                    </div>
+                    
           {/* Action Buttons */}
           <div className="grid grid-cols-4 gap-4">
                         <button

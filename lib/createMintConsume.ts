@@ -98,7 +98,7 @@ export function parseMidenError(error: unknown): MidenError {
     return {
       type: 'CONSTRAINT_ERROR',
       message: errorMessage,
-      userFriendlyMessage: 'Database error terdeteksi. Mencoba reset database...',
+      userFriendlyMessage: 'Database error detected. Attempting to reset database...',
       canRetry: true,
       requiresFallback: false
     };
@@ -109,7 +109,7 @@ export function parseMidenError(error: unknown): MidenError {
     return {
       type: 'NETWORK_ERROR',
       message: errorMessage,
-      userFriendlyMessage: 'Koneksi jaringan bermasalah. Silakan cek koneksi internet Anda.',
+      userFriendlyMessage: 'Network connection issue. Please check your internet connection.',
       canRetry: true,
       requiresFallback: false
     };
@@ -119,7 +119,7 @@ export function parseMidenError(error: unknown): MidenError {
   return {
     type: 'UNKNOWN_ERROR',
     message: errorMessage,
-    userFriendlyMessage: 'Terjadi kesalahan yang tidak diketahui. Silakan coba lagi.',
+          userFriendlyMessage: 'An unknown error occurred. Please try again.',
     canRetry: true,
     requiresFallback: false
   };
