@@ -1,0 +1,11 @@
+{
+  "aliceId": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+  "aliceMidenAddress": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+  "faucetId": "0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
+  "faucetMidenAddress": "0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
+  "blockNumber": 12345,
+  "isConnected": true,
+  "aliceBalance": "1000",
+  "mintedNotes": ["note1", "note2"],
+  "walletInitials": "AB"
+}
