@@ -1,0 +1,95 @@
+/* Extension-specific styles */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Custom extension styles */
+.extension-container {
+  width: 400px;
+  height: 600px;
+  overflow-y: auto;
+}
+
+/* Scrollbar styling */
+.extension-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.extension-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.extension-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.extension-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Toast positioning for extension */
+.toast-extension {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9999;
+  max-width: 320px;
+}
+
+/* Button hover effects */
+.btn-extension {
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-extension:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Loading animation */
+.loading-spinner {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Progress bar animation */
+.progress-bar {
+  transition: width 0.3s ease-in-out;
+}
+
+/* Card hover effects */
+.card-extension {
+  transition: all 0.2s ease-in-out;
+}
+
+.card-extension:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive text sizing for extension */
+.text-extension-xs { font-size: 0.75rem; }
+.text-extension-sm { font-size: 0.875rem; }
+.text-extension-base { font-size: 1rem; }
+.text-extension-lg { font-size: 1.125rem; }
+.text-extension-xl { font-size: 1.25rem; }
+.text-extension-2xl { font-size: 1.5rem; }
+
+/* Extension-specific spacing */
+.space-extension-1 { margin-bottom: 0.25rem; }
+.space-extension-2 { margin-bottom: 0.5rem; }
+.space-extension-3 { margin-bottom: 0.75rem; }
+.space-extension-4 { margin-bottom: 1rem; }
+.space-extension-6 { margin-bottom: 1.5rem; }
+.space-extension-8 { margin-bottom: 2rem; }
