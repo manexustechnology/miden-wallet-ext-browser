@@ -49,13 +49,12 @@ interface SimpleConnectMessage { type: 'MIDEN_SIMPLE_CONNECT'; }
 interface SimpleDisconnectMessage { type: 'MIDEN_SIMPLE_DISCONNECT'; }
 interface SimpleGetInfoMessage { type: 'MIDEN_SIMPLE_GET_INFO'; }
 interface SimpleGetBalanceMessage { type: 'MIDEN_SIMPLE_GET_BALANCE'; address: string; }
-interface SimpleGetStorageMessage { type: 'MIDEN_SIMPLE_GET_STORAGE'; }
 interface SimpleTestMessage { type: 'MIDEN_SIMPLE_TEST'; }
 
 // Test message type
 interface TestMessage { type: 'TEST_MESSAGE'; }
 
-type ExtensionMessage = CreateWalletMessage | MintMessage | BalanceMessage | WalletInfoMessage | SaveWalletMessage | ConnectNetworkMessage | GetBalanceMessage | CreateTransactionMessage | GetTxStatusMessage | ConnectWalletMessage | DisconnectWalletMessage | ReconnectWalletMessage | GetAccountInfoMessage | SendPaymentMessage | SignTransactionMessage | MidenWalletConnectMessage | MidenWalletDisconnectMessage | MidenWalletGetInfoMessage | MidenWalletGetBalanceMessage | MidenWalletSendPaymentMessage | SimpleConnectMessage | SimpleDisconnectMessage | SimpleGetInfoMessage | SimpleGetBalanceMessage | SimpleGetStorageMessage | SimpleTestMessage | TestMessage;
+type ExtensionMessage = CreateWalletMessage | MintMessage | BalanceMessage | WalletInfoMessage | SaveWalletMessage | ConnectNetworkMessage | GetBalanceMessage | CreateTransactionMessage | GetTxStatusMessage | ConnectWalletMessage | DisconnectWalletMessage | ReconnectWalletMessage | GetAccountInfoMessage | SendPaymentMessage | SignTransactionMessage | MidenWalletConnectMessage | MidenWalletDisconnectMessage | MidenWalletGetInfoMessage | MidenWalletGetBalanceMessage | MidenWalletSendPaymentMessage | SimpleConnectMessage | SimpleDisconnectMessage | SimpleGetInfoMessage | SimpleGetBalanceMessage | SimpleTestMessage | TestMessage;
 
 // Service worker compatible message handling - SINGLE LISTENER
 chrome.runtime.onMessage.addListener((request: ExtensionMessage, sender, sendResponse) => {
@@ -140,9 +139,6 @@ chrome.runtime.onMessage.addListener((request: ExtensionMessage, sender, sendRes
           break;
         case 'MIDEN_SIMPLE_GET_BALANCE':
           await handleSimpleGetBalance(request, sendResponse);
-          break;
-        case 'MIDEN_SIMPLE_GET_STORAGE':
-          await handleSimpleGetStorage(request, sendResponse);
           break;
         case 'MIDEN_SIMPLE_TEST':
           await handleSimpleTest(request, sendResponse);
@@ -555,11 +551,11 @@ async function handleSimpleConnect(request: SimpleConnectMessage, sendResponse: 
     const wallet = result['miden-wallet-data'];
     const connectionStatus = result['miden-connection-status'];
     
-    if (wallet && connectionStatus && connectionStatus.isConnected) {
+    if (wallet && connectionStatus) {
       sendResponse({ 
         success: true, 
         message: 'Simple connect successful',
-        data: { wallet, connectionStatus }
+        data: publicWalletInfo(wallet, connectionStatus)
       });
     } else {
       sendResponse({ 
@@ -596,7 +592,7 @@ async function handleSimpleGetInfo(request: SimpleGetInfoMessage, sendResponse: 
     const connectionStatus = result['miden-connection-status'];
     sendResponse({ 
       success: true, 
-      data: { wallet, connectionStatus }
+      data: publicWalletInfo(wallet, connectionStatus)
     });
   } catch (error) {
     console.error('Failed to handle MIDEN_SIMPLE_GET_INFO:', error);
@@ -631,20 +627,6 @@ async function handleSimpleGetBalance(request: SimpleGetBalanceMessage, sendResp
   }
 }
 
-async function handleSimpleGetStorage(request: SimpleGetStorageMessage, sendResponse: (response: any) => void) {
-  try {
-    console.log('Handling MIDEN_SIMPLE_GET_STORAGE message');
-    const result = await chrome.storage.local.get(['miden-wallet-data', 'miden-connection-status']);
-    sendResponse({ 
-      success: true, 
-      data: result
-    });
-  } catch (error) {
-    console.error('Failed to handle MIDEN_SIMPLE_GET_STORAGE:', error);
-    sendResponse({ success: false, error: 'Failed to get simple storage' });
-  }
-}
-
 async function handleSimpleTest(request: SimpleTestMessage, sendResponse: (response: any) => void) {
   try {
     console.log('Handling MIDEN_SIMPLE_TEST message');
@@ -658,6 +640,23 @@ async function handleSimpleTest(request: SimpleTestMessage, sendResponse: (respo
     console.error('Failed to handle MIDEN_SIMPLE_TEST:', error);
     sendResponse({ success: false, error: 'Failed to handle simple test' });
   }
+}
+
+function publicWalletInfo(wallet: MidenInfo | undefined, connectionStatus: unknown) {
+  if (!wallet) {
+    return { wallet: null, connectionStatus };
+  }
+
+  return {
+    wallet: {
+      aliceMidenAddress: wallet.aliceMidenAddress,
+      blockNumber: wallet.blockNumber,
+      isConnected: wallet.isConnected,
+      aliceBalance: wallet.aliceBalance,
+      walletInitials: wallet.walletInitials,
+    },
+    connectionStatus,
+  };
 }
 
 // Storage change listener

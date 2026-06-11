@@ -16,40 +16,15 @@ console.log('🚀 MIDEN SIMPLE CONTENT SCRIPT LOADED (ISOLATED)');
   (window as any).MIDEN_SIMPLE_READY = true;
   (window as any).MIDEN_SIMPLE_EXTENSION_ID = EXTENSION_ID;
   
-  // ISOLATED STORAGE FUNCTION - Different name
-  const getSimpleStorageData = async function() {
-    console.log('🔍 Reading Miden extension storage (SIMPLE)...');
-    
-    try {
-      if (typeof chrome !== 'undefined' && chrome.runtime && chrome.storage) {
-        const storage = await chrome.storage.local.get([
-          'miden-connection-status',
-          'miden-wallet-data'
-        ]);
-        
-        console.log('✅ Simple storage read successfully:', storage);
-        return storage;
-      } else {
-        console.log('❌ Chrome storage not available (SIMPLE)');
-        return null;
-      }
-    } catch (error) {
-      console.error('❌ Error reading simple storage:', error);
-      return null;
-    }
-  };
-  
   // ISOLATED TEST FUNCTION - Different name
   const testSimpleExtension = function() {
     console.log('🧪 TESTING SIMPLE MIDEN EXTENSION FROM CONSOLE');
     console.log('1. Extension ID:', EXTENSION_ID);
     console.log('2. Chrome available:', typeof chrome !== 'undefined');
-    console.log('3. Storage function:', typeof getSimpleStorageData);
     
     return {
       extensionId: EXTENSION_ID,
       chromeAvailable: typeof chrome !== 'undefined',
-      storageFunction: typeof getSimpleStorageData,
       timestamp: new Date().toISOString()
     };
   };
@@ -74,9 +49,6 @@ console.log('🚀 MIDEN SIMPLE CONTENT SCRIPT LOADED (ISOLATED)');
           console.log('Simple Bridge isAvailable() called, result:', available);
           return available;
         },
-        
-        // Direct storage access (simplified)
-        getStorage: getSimpleStorageData,
         
         // Test function
         test: testSimpleExtension,
@@ -110,7 +82,7 @@ console.log('🚀 MIDEN SIMPLE CONTENT SCRIPT LOADED (ISOLATED)');
               ...message,
               type: `MIDEN_SIMPLE_${message.type}`,
               id: id
-            }, '*');
+            }, window.location.origin);
             
             // Timeout after 10 seconds (shorter for simple)
             setTimeout(() => {
@@ -164,6 +136,7 @@ console.log('🚀 MIDEN SIMPLE CONTENT SCRIPT LOADED (ISOLATED)');
     window.addEventListener('message', (event) => {
       // Only accept messages from the same window
       if (event.source !== window) return;
+      if (event.origin !== window.location.origin) return;
       
       // Only accept SIMPLE namespace messages (but not INJECT_DATA or RESPONSE messages)
       if (event.data.type && 
@@ -187,7 +160,7 @@ console.log('🚀 MIDEN SIMPLE CONTENT SCRIPT LOADED (ISOLATED)');
                 type: `MIDEN_SIMPLE_RESPONSE_${event.data.type.replace('MIDEN_SIMPLE_', '')}`,
                 id: event.data.id,
                 response: response
-              }, '*');
+              }, window.location.origin);
             }).catch(error => {
               console.error('Simple background error:', error);
               // Send error back to web page
@@ -195,7 +168,7 @@ console.log('🚀 MIDEN SIMPLE CONTENT SCRIPT LOADED (ISOLATED)');
                 type: `MIDEN_SIMPLE_RESPONSE_${event.data.type.replace('MIDEN_SIMPLE_', '')}`,
                 id: event.data.id,
                 error: error.message || 'Background script error'
-              }, '*');
+              }, window.location.origin);
             });
           } catch (error) {
             console.error('Simple runtime error:', error);
@@ -204,7 +177,7 @@ console.log('🚀 MIDEN SIMPLE CONTENT SCRIPT LOADED (ISOLATED)');
               type: `MIDEN_SIMPLE_RESPONSE_${event.data.type.replace('MIDEN_SIMPLE_', '')}`,
               id: event.data.id,
               error: 'Extension context invalidated'
-            }, '*');
+            }, window.location.origin);
           }
         } else {
           // Send error if chrome runtime not available
@@ -212,7 +185,7 @@ console.log('🚀 MIDEN SIMPLE CONTENT SCRIPT LOADED (ISOLATED)');
             type: `MIDEN_SIMPLE_RESPONSE_${event.data.type.replace('MIDEN_SIMPLE_', '')}`,
             id: event.data.id,
             error: 'Chrome runtime not available (SIMPLE)'
-          }, '*');
+          }, window.location.origin);
         }
       }
     });
@@ -249,7 +222,6 @@ console.log('🚀 MIDEN SIMPLE CONTENT SCRIPT LOADED (ISOLATED)');
   dispatchSimpleEvent();
   
   // INJECT GLOBAL FUNCTIONS (ISOLATED NAMESPACE)
-  (window as any).getSimpleStorageData = getSimpleStorageData;
   (window as any).testSimpleExtension = testSimpleExtension;
   
   // SEND DATA TO MAIN WINDOW VIA POSTMESSAGE
@@ -266,7 +238,7 @@ console.log('🚀 MIDEN SIMPLE CONTENT SCRIPT LOADED (ISOLATED)');
         chromeAvailable: typeof chrome !== 'undefined',
         timestamp: new Date().toISOString()
       }
-    }, '*');
+    }, window.location.origin);
     
     console.log('✅ SIMPLE DATA SENT TO MAIN WINDOW VIA POSTMESSAGE');
     
@@ -276,7 +248,6 @@ console.log('🚀 MIDEN SIMPLE CONTENT SCRIPT LOADED (ISOLATED)');
   
   console.log('✅ SIMPLE SYSTEM INITIALIZED (ISOLATED)');
   console.log('🔍 Check window.midenSimpleWallet in console:', (window as any).midenSimpleWallet);
-  console.log('🔍 Check window.getSimpleStorageData in console:', typeof (window as any).getSimpleStorageData);
   console.log('🔍 Check window.testSimpleExtension in console:', typeof (window as any).testSimpleExtension);
   
 })();
