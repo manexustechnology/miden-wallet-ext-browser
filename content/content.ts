@@ -168,7 +168,7 @@ function injectWalletBridge() {
           window.postMessage({
             ...message,
             id: id
-          }, '*');
+          }, window.location.origin);
           
           // Timeout after 30 seconds
           setTimeout(() => {
@@ -269,6 +269,7 @@ function injectWalletBridge() {
 window.addEventListener('message', (event) => {
   // Only accept messages from the same window
   if (event.source !== window) return;
+  if (event.origin !== window.location.origin) return;
   
   // Only accept messages that we know are ours
   if (event.data.type && event.data.type.startsWith('MIDEN_WALLET_')) {
@@ -283,7 +284,7 @@ window.addEventListener('message', (event) => {
           type: `MIDEN_WALLET_RESPONSE_${event.data.type}`,
           id: event.data.id,
           response: response
-        }, '*');
+        }, window.location.origin);
       }).catch(error => {
         console.error('Background error:', error);
         // Send error back to web page
@@ -291,7 +292,7 @@ window.addEventListener('message', (event) => {
           type: `MIDEN_WALLET_RESPONSE_${event.data.type}`,
           id: event.data.id,
           error: error.message
-        }, '*');
+        }, window.location.origin);
       });
     } else {
       // Send error if chrome runtime not available
@@ -299,7 +300,7 @@ window.addEventListener('message', (event) => {
         type: `MIDEN_WALLET_RESPONSE_${event.data.type}`,
         id: event.data.id,
         error: 'Chrome runtime not available'
-      }, '*');
+      }, window.location.origin);
     }
   }
 });
