@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { exportWalletWithPrivateKeys, downloadTextFile } from '../lib/accountExportImport';
 import { createMintConsume, mintFromFaucet, getRealTimeBalance } from '../lib/createMintConsume';
 import type { MidenInfo } from '../lib/createMintConsume';
+import SiteAccess from './SiteAccess';
 
 const Popup: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -1268,143 +1269,22 @@ const Popup: React.FC = () => {
       if (exportResult.success) {
         let walletBackupData;
         
-        if (exportResult.data && exportResult.data.length > 0) {
-          // We have real data from Miden SDK, use it directly
-          console.log('Using real Miden SDK export data');
-          const decoder = new TextDecoder();
-          const jsonString = decoder.decode(exportResult.data);
-          
-          // Parse the JSON to get the object, then re-stringify it properly
-          try {
-            const parsedData = JSON.parse(jsonString);
-            console.log('Successfully parsed Miden SDK export data:', parsedData);
-            walletBackupData = parsedData;
-          } catch (parseError) {
-            console.log('Could not parse store export data, using as string');
-            walletBackupData = jsonString;
-          }
-        } else {
-          // Fallback to wallet backup format with real wallet data
-          console.log('Using wallet backup format with real wallet data');
-          
-          // Get real wallet data from current wallet state
-          walletBackupData = {
-            accountCode: [{
-              root: walletData?.aliceId || "0x0000000000000000000000000000000000000000000000000000000000000000",
-              code: {
-                __type: "Blob",
-                data: "TUFTVAAAAAAHAQcAAAAAAQAAAAIAAAABAAAAAAAAAICvUCqlxqZBbT/vDemLgtrac7Bm+2qchrqpaZD0q5NgvQAAAAAAAACAmDf2zMJuzzZqJ7y9B5hzkYACyGX9MuWHtoZqI1G1XOgAAAAAAAAAgPKZpiIWMWuBfRjRV5Zy7NWLXb1rEsQplc0Yh33PMeLyAQEBAQEBAQECr1AqpcamQW0/7w3pi4La2nOwZvtqnIa6qWmQ9KuTYL0AAfKZpiIWMWuBfRjRV5Zy7NWLXb1rEsQplc0Yh33PMeLyAACYN/bMwm7PNmonvL0HmHORgALIZf0y5Ye2hmojUbVc6AAA"
-              }
-            }],
-            accountStorage: [{
-              root: walletData?.aliceId || "0x0000000000000000000000000000000000000000000000000000000000000000",
-              slots: {
-                __type: "Blob",
-                data: "AQCsUEOeosh0qdaElsZAGHcteUTSH1MqLBR/hCyiWySPqw=="
-              }
-            }],
-            accountVaults: [{
-              root: walletData?.aliceId || "0x0000000000000000000000000000000000000000000000000000000000000000",
-              assets: {
-                __type: "Blob",
-                data: "AQ=="
-              }
-            }],
-            accountAuth: [{
-              pubKey: walletData?.aliceId || "0x0000000000000000000000000000000000000000000000000000000000000000",
-              secretKey: "00591fe13bfbe03e0fbff60fde84e8007b140f00fc0041141e40fc5e7703ddfdfb7fc3f7a102ffdf83f3d04613ef7df081fdf41f4017c040fc6e3ffc413a1ffebee46080efa0c8ebb03bec3f7907bf80fc5f00f00141f01ebc081100083040e80004e07f3defffbafc0fc300303f07ee81ffdf7fe831bf0fefbbfbff8208103cf7e08027cfc514713ef7af7defafc40bb101001f7e07e03bffce43084e85fc1e3ff7707ff7c1fe03ff80eba07dffe146001f85002fc000304317a17ff8317fffdff6047eff141f821bef3d03af7df00ec0f021fd04010007af021c313f0c204303aebd1021050830bef040fb1bbfbf08407af3903cfbd0c6fc60c20ffe8310607e07e00107f04200407ff7f03c10618503df84fba0b813b00313c0040f907e0bc08507e07befddc2fc4f8417e083efe13e13d0440ff080ff9fc0f0817feff2bef04f0504104303a03b17d081e010c103f0c20c0040041fb9e7bf050c30c313af001400fefc4ec0101ebf03c04703af7e0031b7fbf0fcec5003fc3086ec107e13ff02fc50c4f00fbffc3ffce8407ff3c13dffce0213e13d101ebf0fcfbd0b9e03f4203f0cb1fe040086f7fe3cebbefc000002104f41fbafbf0c0140040d82ffd13e13dfc4f40d41101fbf147ec0ffb0f70411fcfc1f7bffdf37f7de4503df78ec0ffb201fffe831010401f61c1ffe00527dffd001f46f3c0bd03f0020040c407e13be80ff91c5eff085e822bd0fe242fbf086fc2eb6e400c0f04ffcff9f41042107086fbb001f42f7ae440c0fb70bb042fc0ec00bef41e42044e04fbdfbc0c7145089f43f8317d104f8117df02082ffdfbff3df3fe43f0604313b042f81ec4fbb141108f81f0710033c07efbb23affff7e1c010207df02f400b6e7b03f2fee87f3b07f1bafbd143180044ffe07d144f85239ec513c0430c3f8217f148ff5080042f40e7dfbfe85185f7eefa24a281fc410527ae7a00503feff1000410472bd00203beca102f3d0381c5082efe0fa039fbf0810bdebd14017af8407bffdcfdf84002fc0001f4307d27b00008af831f9ebff460fd1c2fc5e02ebd145e7f0bdffd000247150507f8f00cf136120a0d0e1f1af81a100d080cf9db012407f2feed1c060ddf2b0f0eeb2b02f42cfbbfe8f4d605f1f521e812f117f41e3dfe123707ff0ef510020706080c02db0d0700f503ff030023170424e40eef1310dd0ef3ead3f20ee1d624d60318fb1f161b00ee051febf7110a38f80cf823f52824fb26362b1900ef04190313f81103efca0de2fa0919e80e1d01fc0fea150ee9f2150b1e10f3fefdf8dd2ed608151202ff06faff0c22f82c03f43909f7f40ff6f3e2cd031119e9fe04f8f2f5f21e41f0101b0d010805dcfd1c08fb120c2507da12dd120dd613220a13d82429040cd0f110e9f20d1dfbef1efe0f19031904f9061310f7f832defce4f9f2f90ddf2032090a19ee0c01080d01150e00fe0d01effc16fdf6fa01e9ec0e29021b20f20f21071cf6f4efde2002e8fc1409dd1611f71222d1042205d1e8440df31537c2e2e6f8142014cb170023fee90420dafb13f30214ebf8d2ebf120f7dee62314dd000d1ec00e260003ec28f21b0cd70bf10a332f38eee400fd16052af4ed450d0012defc260415faf90b0af4ec03e6d1dddb1ff50a221e0c02e1ff21f3dc0912fffd2b0b010020d6f91f26e209f306f41638eee20f0816fbfaff1804e3121f25d3def6dbd2dddadf0800190aed0ccd242e29cfe42731a2d92b00f81212fbe1f8f5f605fc021d1e05f329241207eb15fe0fdff222ffe6e92bf90b070a"
-            }],
-            accounts: [{
-              id: walletData?.aliceId || "0x0000000000000000000000000000000000000000000000000000000000000000",
-              codeRoot: walletData?.aliceId || "0x0000000000000000000000000000000000000000000000000000000000000000",
-              storageRoot: walletData?.aliceId || "0x0000000000000000000000000000000000000000000000000000000000000000",
-              vaultRoot: walletData?.aliceId || "0x0000000000000000000000000000000000000000000000000000000000000000",
-              nonce: "1",
-              committed: false,
-              accountSeed: null,
-              accountCommitment: walletData?.aliceId || "0x0000000000000000000000000000000000000000000000000000000000000000",
-              locked: false
-            }],
-            transactions: [{
-              id: walletData?.aliceId || "0x0000000000000000000000000000000000000000000000000000000000000000",
-              details: {
-                __type: "Blob",
-                data: "NpskY1EQ35BZx0So4+m8eWl+hv8GKo12G1xkQ9UOXq4oSWjHR1R/yzkB2GoFdd8zuIrHrV7nvtptcdt/AKe4X6uyl9abQctfuJjMHhG0JwM4NINSJpNtDWgoKGSSHL7hWBXCkJVmX9+6UOQw+BV8MQAAHOYFAB3mBQD/////"
-              },
-              scriptRoot: "8Ns5JPPi1nelGSSwns74oSQWps6wn63Tl4W7T2hcq2Y=",
-              blockNum: "386588",
-              commitHeight: "386590",
-              discardCause: {
-                __type: "Blob",
-                data: ""
-              }
-            }],
-            transactionScripts: [{
-              scriptRoot: "8Ns5JPPi1nelGSSwns74oSQWps6wn63Tl4W7T2hcq2Y=",
-              txScript: {
-                __type: "Blob",
-                data: "TUFTVAAAAAADAQMAAAAABQMAAAAAAAAAADDw2zkk8+LWd6UZJLCezvihJBamzrCfrdOXhbtPaFyrZgEBAQEBAwEBAQEAAAAA"
-              }
-            }],
-            inputNotes: [{
-              noteId: walletData?.aliceId || "0x0000000000000000000000000000000000000000000000000000000000000000",
-              assets: {
-                __type: "Blob",
-                data: "AVSoF0yO/j8gG9afiXqlJwDodkgXAAAA"
-              },
-              serialNumber: {
-                __type: "Blob",
-                data: "fGC494nUieo7wrlf6FnwZ8f/RFOgAs7hZtDxO5ZggZE="
-              },
-              inputs: {
-                __type: "Blob",
-                data: "AgC86eOoRMdZkN8QUWMkmzY="
-              },
-              noteScriptRoot: "0x9f70c9bd86043ac7fbcfb909522543ea80eba54ee1ef0e3d8d1663dd3ce521fa",
-              nullifier: "0x3834835226936d0d68282864921cbee15815c29095665fdfba50e430f8157c31",
-              state: {
-                __type: "Blob",
-                data: "BiA//o5MF6hUQSeleomf1hsAAKbNAAAAAAAAAAAAAAAAHOYFAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8Ns5JPPi1nelGSSwns74oSQWps6wn63Tl4W7T2hcq2ZfpcQFHJNh/KlQJjfibP8MxpLc9C/D5gadQA5LwNhyG8JR40UercXNpspEcoAGC/B94afJlRSwuz+nVub3TWHZOm7LJWCNSg0hPxh+J4HR2NMR3hhWcvk7bsjZp7UOarJPc3ceRLVWFTOiIihLr86iDOBT1Xnu5UHyaXrWT8DN8jhDOyUC+4cZvimzVqjjwafoU1Uw/d6QjU3JJnUv7jKxfYuleFCB7O89iiuuiL0CLQrGql4R7j17rf8AmqCdZY5MkmKLxhv1pYefUYsLLRhUpVCt4mAntBWIZwSuTNWyA4fx+w1fmjwRmdbzRpzc8nf0+FDJNC3Zw7by2v/3qsacfpkcq2NTyJezQQurzNhcqQtHgDa8fou5qRkPZBMb/iLsfxg05uIxCrHkVyTBGcCktMZepyfeuadkgSFrt6wLmYrLcfAuuk9u5aDFTYEVxHexS6ZEgyxJoOUfhLyNXt3GQ6qbPGGa9UgGyNIvreUddo9yNZ6AnrktwO2gMcFasDjFclEVIBPOlrpvuFo6LGK/NkhVZhKjdlgiOZZGNv0jTwNCndOI2+SGQYcGe6NMwoH1WMpxE9K3ErDL7yJHbVS2jYXB7JQ2oUxYe5e3We850PbCXeVI9wqe0eOKV+qwBase5gUAAfJmlGgAAAAANpskY1EQ35BZx0So4+m8BJnd+pn8ZeoT1lt7BrNABiKTYpYH56IkZO+tFhEIjgw="
-              },
-              stateDiscriminant: 6,
-              createdAt: "1754556150"
-            }],
-            outputNotes: [],
-            notesScripts: [{
-              scriptRoot: "0x9f70c9bd86043ac7fbcfb909522543ea80eba54ee1ef0e3d8d1663dd3ce521fa",
-              serializedNoteScript: {
-                __type: "Blob",
-                data: "TUFTVAAAAAA3AQUOAAAAGgAAAOkDMBtbBAAAAAAAAAAjMiIwMDAwEjE3IQUjMRMsMDAwMBgwMDAwMDAwMB4nKSkpKSkpKSkpKSkpEFsEAAAAAAAAACIxNyEFDSkpKSkpKQswMDAwMA1bAgAAAAAAAAAhIPmRM2HdQzKnLCkpAyA54GH8MFbO6AAAAAAAAACADrIeBrCzA5i8WnBQupjGfWwOrUcwDpOuiFQmt4HSwB4AAAAAAAAAMNnmpwh9i7/68HfP0A7ytO3sQYX1uchYcfGBLYvoqqxUAgAAAAAAADBmZn1Ea8BERscf9lBlsSI2Un1t+ogrI+0xtCHqF28gJAAAAAAAAACAmDf2zMJuzzZqJ7y9B5hzkYACyGX9MuWHtoZqI1G1XOgDAAAAAAAAQLhSogGcJYuNjErUU7bDzYn09k+6vxdq8XNvMR96ZxXnGAAAAAAAADDJkZ2Y4LG79Zlz2v4L+TTCQOxaGZ6aZSBQxm577WC0hioAAAAAAAAwzI1PjKEQdVOaIX2ldh1PG1yi7q/Wb2pXbiT9+pTQeBwEAABAAQAAAK1p5eLQ442YbMPvvYY8peGvg6Tlux4og7tK9/f1v48mBgAAwAEAAAC4kmNcXfpYBMrX5p5kP+qmxidf9ejkYm6ShgYELQUCXwgAAAAAAAAgt8g6lpKWjYHuHQmVQqqg7TKS1UPjHQa5wB/7YtfUyndGAAAAAAAAMHj6dEqswvPb/NTROo2m0AjSfL7mhe6prBtAtZjTgZCmAAAAQAAAAABR8OTXEkUT+DOc9zLGKvrRLlwISkZ3vtbo+3rNYw28HQkAAIAAAAAAQo8Nc5tWBVZc1s2fhMKFHeZPZzLidBVeSwDMOEmN8yoMAADAAgAAAFt+Igki2xAbNY9pZ8IC9Mhfmw6MwGJv07covZ2CWdZXCgAAQAMAAAB/5kl5614Zp6puQSzVBsWhkaI6+PGtPWeYf5dk20M4wAAAAAAAAACAcO1P53rtF8xO5sfjNHDLCk+RqiGC+bvSwqVTQlhXXPVNAAAAAAAAMAJZCfOXJbNB3cs+lsELKjtak0uViwLdx2fFPhCj1VaPAAAAAAAAAIAmgpWX8SO/GD1M0i8Ia7pRoHKaj6mvusHoe+x901vja1MAAAAAAAAw2CyEUNggbHF0j0A4rAWlzOFeZCkGlliD3wihH9CbcqcAAAAAAAAAgG+cz/KEEa7/TiEJgyjfPEJx3IhSca0KQt1bAM9RLUTcagAAAAAAADAYWOwuar3x0UR0dOWrjhMTxPkydugvO6rJoFbW7NwMmw8AAAAEAAAAobEPfvLT6xp13uY001VUf96DHNHtCdH2fIjKZZrKsXERAACABAAAANhheTdy/oCTJAdv5S5gKiFelXnbaJiWEVJFMawjrMEuFAAAwAQAAAByR+HCS0WYIfVXQzj+T0MNQD4RpirT+yluxVHfn26FJBYAAEAFAAAAKojByaZyevLg0wuo/gCF0mw1lx6ZqgBOXwKQvaY33FMOAADABQAAACMYeLHqGmpwjnGD9KIv1RZTGtGHBl0mZF64f7u7EUQDGQAAAAYAAACfcMm9hgQ6x/vPuQlSJUPqgOulTuHvDj2NFmPdPOUh+gEF+ZEzYd1DMqdPUDJJRCBub3RlIGV4cGVjdHMgZXhhY3RseSAyIG5vdGUgaW5wdXRzOeBh/DBWzuiFUDJJRCdzIHRhcmdldCBhY2NvdW50IGFkZHJlc3MgYW5kIHRyYW5zYWN0aW9uIGFkZHJlc3MgZG8gbm90IG1hdGNoAQEBEQMBBQELAQ0BFQEhASUBKQEBARoAAAA"
-              }
-            }],
-            stateSync: [{
-              id: 1,
-              blockNum: "386594"
-            }],
-            blockHeaders: [{
-              blockNum: "0",
-              header: {
-                __type: "Blob",
-                data: "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGncqC05nSmXGQeUYq9EdAbW96AHxwuXe4ud83h8jSPk3j8zPSqEBa4ryf2+4anMblPahW5iCazRPxNFxfgHRT0+EoxX9s+g1EqxMImUFxrxPLUTQirdKNGRaz/yVP74Lf4kh6HI3c6T7TCRLheZMk5gyAgYDp4igHj9t340efQTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABw4B+Xqp+z0x0UMGi1EtcPBqVuTC+e+MvSaU4qemovLgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAi952aA=="
-              },
-              partialBlockchainPeaks: {
-                __type: "Blob",
-                data: "AQ=="
-              },
-              hasClientNotes: "false"
-            }],
-            partialBlockchainNodes: [{
-              id: "773136",
-              node: "0xb3fc2715a06ce2c144a1eae5f6b96e070fbba4c1196f725d72dd6e523b602cef"
-            }],
-            tags: [{
-              tag: "AACmzQ==",
-              sourceNoteId: "",
-              sourceAccountId: walletData?.aliceId || "0x0000000000000000000000000000000000000000000000000000000000000000",
-              id: 1
-            }],
-            foreignAccountCode: []
-          };
+        if (!exportResult.data || exportResult.data.length === 0) {
+          // Never build a backup from a template: it would not hold this
+          // account's own key. Fail loudly instead of writing a file.
+          alert('Export failed: the Miden SDK returned no account data, so no backup file was created.');
+          return;
+        }
+
+        // Real data from the Miden SDK, used as-is (it contains private keys,
+        // so it is not logged)
+        const decoder = new TextDecoder();
+        const exportedJson = decoder.decode(exportResult.data);
+        try {
+          walletBackupData = JSON.parse(exportedJson);
+        } catch (parseError) {
+          console.log('Could not parse store export data, using as string');
+          walletBackupData = exportedJson;
         }
         
         // Create the exact same format as wallet.account file:
@@ -1777,6 +1657,9 @@ const Popup: React.FC = () => {
           className="hidden-file-input" 
           onChange={handleImportAccountFileChange}
         />
+        
+        {/* Site access requests and approved sites */}
+        <SiteAccess />
         
         {/* Account Section */}
         <div className="account-section">
