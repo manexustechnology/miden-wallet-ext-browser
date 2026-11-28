@@ -7,6 +7,7 @@
     "build": "webpack --config webpack.config.js",
     "build:prod": "webpack --config webpack.config.js --mode=production",
     "dev": "webpack --config webpack.config.js --watch",
+    "test": "node --test scripts/origin-gate.test.mjs",
     "test-extension": "node scripts/test-extension.js",
     "package-extension": "node scripts/build-extension.js"
   },

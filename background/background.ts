@@ -1,6 +1,8 @@
 // Background script for Miden Wallet Extension
 // This script handles all messages and manages the extension state
 
+import { APPROVED_ORIGINS_KEY, PENDING_CONNECTION_KEY, gatePageMessage, isExtensionPage } from './originGate';
+
 console.log('🚀 MIDEN WALLET BACKGROUND SCRIPT STARTING...');
 console.log('⏰ Timestamp:', new Date().toISOString());
 console.log('🔧 Extension ID:', chrome.runtime.id);
@@ -65,6 +67,13 @@ chrome.runtime.onMessage.addListener((request: ExtensionMessage, sender, sendRes
   // Handle messages asynchronously
   (async () => {
     try {
+      // Messages from web pages (via content scripts) are limited to a few
+      // types, and the ones that reveal wallet data need the site approved
+      if (!isExtensionPage(sender, chrome.runtime.id, chrome.runtime.getURL(''))) {
+        const handled = await gateMessageFromPage(request, sender, sendResponse);
+        if (handled) return;
+      }
+
       switch (request.type) {
         case 'GET_WALLET_INFO': 
           await handleGetWalletInfo(request, sendResponse); 
@@ -170,6 +179,44 @@ chrome.runtime.onMessage.addListener((request: ExtensionMessage, sender, sendRes
   // Return true to indicate async response
   return true;
 });
+
+// Returns true when the message was answered here and must not be handled further.
+async function gateMessageFromPage(request: ExtensionMessage, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void): Promise<boolean> {
+  const stored = await chrome.storage.local.get([APPROVED_ORIGINS_KEY]);
+  const approvedOrigins: string[] = Array.isArray(stored[APPROVED_ORIGINS_KEY]) ? stored[APPROVED_ORIGINS_KEY] : [];
+  const decision = gatePageMessage(request.type, sender, approvedOrigins);
+
+  switch (decision.action) {
+    case 'allow':
+      return false;
+    case 'reject':
+      console.warn('Rejected message from web page:', request.type, sender.origin);
+      sendResponse({ success: false, error: decision.error });
+      return true;
+    case 'needs-approval':
+      // Remember the request so the popup can ask the user, and flag the icon
+      await chrome.storage.local.set({
+        [PENDING_CONNECTION_KEY]: { origin: decision.origin, requestedAt: new Date().toISOString() }
+      });
+      try {
+        await chrome.action.setBadgeText({ text: '!' });
+      } catch (error) {
+        console.warn('Could not set badge:', error);
+      }
+      sendResponse({
+        success: false,
+        requiresApproval: true,
+        error: 'This site is not approved yet. Open the Miden Wallet extension to approve it.'
+      });
+      return true;
+    case 'revoke':
+      await chrome.storage.local.set({
+        [APPROVED_ORIGINS_KEY]: approvedOrigins.filter(origin => origin !== decision.origin)
+      });
+      sendResponse({ success: true, message: 'Site disconnected' });
+      return true;
+  }
+}
 
 async function handleGetWalletInfo(request: WalletInfoMessage, sendResponse: (response: any) => void) {
   try {
